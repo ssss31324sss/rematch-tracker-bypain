@@ -1,0 +1,53 @@
+{
+  "name": "triple-six-dashboard",
+  "version": "1.0.0",
+  "description": "Rematch Tracker desktop dashboard",
+  "main": "main.js",
+  "author": {
+    "name": "PAIN • TRIPLE SIX"
+  },
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder",
+    "pack": "electron-builder --dir"
+  },
+  "build": {
+    "appId": "com.rematch.tracker",
+    "productName": "Rematch Tracker",
+    "asar": true,
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "index.html",
+      "app.js",
+      "styles.css",
+      "main.js",
+      "preload.js",
+      "package.json",
+      "icon.ico",
+      "background.jpg",
+      "loading.mp4",
+      "assets/**/*"
+    ],
+    "publish": {
+      "provider": "github",
+      "owner": "ssss31324sss",
+      "repo": "triple-six-dashboard"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "icon.ico"
+    },
+    "asarUnpack": [
+      "loading.mp4"
+    ]
+  },
+  "devDependencies": {
+    "electron": "^42.0.1",
+    "electron-builder": "^26.0.12"
+  },
+  "dependencies": {
+    "electron-updater": "^6.3.9"
+  }
+}

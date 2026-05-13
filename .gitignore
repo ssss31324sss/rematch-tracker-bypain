@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+dist/
+
+# Environment
+.env
+
+# Logs
+*.log
+logs
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+*.exe
+*.msi
+*.dmg
+*.AppImage
