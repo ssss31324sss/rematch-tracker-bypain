@@ -1601,6 +1601,17 @@
                     </div>
                 </div>
 
+                <div onclick="switchTab('tournaments')" 
+                     class="nav-item flex items-center gap-x-3.5 px-4 py-[13px] rounded-2xl mb-1 text-white/90 hover:text-white cursor-pointer" data-tab="tournaments">
+                    <div class="w-9 h-9 flex items-center justify-center bg-amber-400/10 border border-amber-300/20 rounded-2xl">
+                        <i class="fa-solid fa-trophy text-amber-200 text-lg"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-semibold">Турниры</div>
+                        <div class="text-xs text-white/50 sidebar-nav-subtitle">Результаты</div>
+                    </div>
+                </div>
+
                 <div onclick="switchTab('assistant')" 
                      class="nav-item flex items-center gap-x-3.5 px-4 py-[13px] rounded-2xl text-white/90 hover:text-white cursor-pointer group" data-tab="assistant">
                     <div class="w-9 h-9 flex items-center justify-center bg-cyan-400/10 border border-cyan-300/20 rounded-2xl">
@@ -1894,6 +1905,131 @@
 
                     <div class="mt-6 text-center text-xs text-white/50">
                         После сохранения ссылка появится в Истории рядом с серией
+                    </div>
+                </div>
+            </div>
+\n\n            <!-- TOURNAMENT RESULTS TAB -->
+            <div id="tab-tournaments" class="tab-content hidden">
+                <div class="max-w-[1320px] mx-auto">
+                    <div class="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-5 mb-6">
+                        <div>
+                            <div class="px-4 py-1.5 bg-amber-400/10 border border-amber-300/20 text-amber-100 rounded-2xl text-xs font-semibold tracking-widest inline-flex items-center gap-2">
+                                <i class="fa-solid fa-trophy"></i>
+                                TOURNAMENT RESULTS
+                            </div>
+                            <h1 class="section-header mt-2">Турнирные результаты</h1>
+                            <p class="text-white/60 mt-2 text-lg">Сохраняй турниры, место, цвет и этапы, которые команда прошла</p>
+                        </div>
+                        <div class="relative w-full xl:w-[360px]">
+                            <input id="tournament-search" type="text" placeholder="Поиск по названию турнира..." oninput="renderTournaments()"
+                                   class="modern-input w-full pl-11 pr-4 py-3.5 bg-white/5 border border-white/20 focus:border-amber-300/50 rounded-3xl text-sm outline-none">
+                            <i class="fa-solid fa-search absolute left-4 top-4 text-white/40"></i>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 xl:grid-cols-[420px_1fr] gap-5 items-start">
+                        <div class="glass frost rounded-3xl p-6">
+                            <div class="flex items-center justify-between mb-5">
+                                <div>
+                                    <div class="font-extrabold text-xl">Новый турнир</div>
+                                    <div class="text-sm text-white/50 mt-1">Все выборы сделаны выпадающими списками</div>
+                                </div>
+                                <button type="button" onclick="resetTournamentForm()" class="w-10 h-10 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/60 hover:text-white transition-all" title="Очистить форму">
+                                    <i class="fa-solid fa-rotate-left"></i>
+                                </button>
+                            </div>
+
+                            <input id="tournament-edit-id" type="hidden" value="">
+
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="text-xs text-white/55 block mb-1.5 tracking-wider">НАЗВАНИЕ ТУРНИРА</label>
+                                    <input id="tournament-name" type="text" maxlength="80" placeholder="Например: Spring Cup 2026"
+                                           class="modern-input w-full px-4 py-3.5 bg-white/5 border border-white/20 focus:border-amber-300/50 rounded-2xl text-sm outline-none">
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="text-xs text-white/55 block mb-1.5 tracking-wider">ЦВЕТ</label>
+                                        <select id="tournament-color" class="board-select-dark modern-input w-full px-4 py-3.5 bg-zinc-900/85 border border-white/20 focus:border-amber-300/50 rounded-2xl text-sm text-white outline-none">
+                                            <option value="cyan">Cyan</option>
+                                            <option value="purple">Purple</option>
+                                            <option value="gold">Gold</option>
+                                            <option value="red">Red</option>
+                                            <option value="green">Green</option>
+                                            <option value="white">White</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="text-xs text-white/55 block mb-1.5 tracking-wider">ТЕКУЩАЯ СТАДИЯ</label>
+                                        <select id="tournament-stage" onchange="applyTournamentStageAutoFill()" class="board-select-dark modern-input w-full px-4 py-3.5 bg-zinc-900/85 border border-white/20 focus:border-amber-300/50 rounded-2xl text-sm text-white outline-none">
+                                            <option value="Group Stage">Group Stage</option>
+                                            <option value="PlayOff">PlayOff</option>
+                                            <option value="Final">Final</option>
+                                            <option value="GrandFinal">GrandFinal</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="text-xs text-white/55 block mb-1.5 tracking-wider">МЕСТО, КОТОРОЕ ЗАНЯЛИ</label>
+                                    <input id="tournament-placement" type="text" maxlength="40" placeholder="#1 / #2 / TOP 4 / 5-8"
+                                           class="modern-input w-full px-4 py-3.5 bg-white/5 border border-white/20 focus:border-amber-300/50 rounded-2xl text-sm outline-none">
+                                </div>
+
+                                <div>
+                                    <label class="text-xs text-white/55 block mb-1.5 tracking-wider">ПРОЙДЕННЫЕ СТАДИИ</label>
+                                    <div class="relative">
+                                        <button type="button" onclick="toggleTournamentStagesDropdown(event)" class="vod-select-trigger w-full">
+                                            <span id="tournament-stages-trigger-text" class="truncate">Выберите стадии...</span>
+                                            <i class="fa-solid fa-chevron-down text-xs"></i>
+                                        </button>
+                                        <div id="tournament-stages-menu" class="vod-select-menu hidden">
+                                            <label class="vod-select-option cursor-pointer flex-row items-center justify-between">
+                                                <span><span class="vod-select-option-main">Group Stage</span><span class="vod-select-option-sub">Групповой этап пройден</span></span>
+                                                <input type="checkbox" class="tournament-stage-check accent-cyan-300" value="Group Stage" onchange="updateTournamentStagesLabel()">
+                                            </label>
+                                            <label class="vod-select-option cursor-pointer flex-row items-center justify-between">
+                                                <span><span class="vod-select-option-main">PlayOff</span><span class="vod-select-option-sub">Плей-офф пройден</span></span>
+                                                <input type="checkbox" class="tournament-stage-check accent-cyan-300" value="PlayOff" onchange="updateTournamentStagesLabel()">
+                                            </label>
+                                            <label class="vod-select-option cursor-pointer flex-row items-center justify-between">
+                                                <span><span class="vod-select-option-main">Final</span><span class="vod-select-option-sub">Финал достигнут/пройден</span></span>
+                                                <input type="checkbox" class="tournament-stage-check accent-cyan-300" value="Final" onchange="updateTournamentStagesLabel()">
+                                            </label>
+                                            <label class="vod-select-option cursor-pointer flex-row items-center justify-between">
+                                                <span><span class="vod-select-option-main">GrandFinal</span><span class="vod-select-option-sub">Гранд-финал достигнут/пройден</span></span>
+                                                <input type="checkbox" class="tournament-stage-check accent-cyan-300" value="GrandFinal" onchange="updateTournamentStagesLabel()">
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="text-[11px] text-white/40 mt-2">При выборе Final автоматически отмечаются Group Stage и PlayOff. При выборе GrandFinal отмечается вся цепочка.</div>
+                                </div>
+
+                                <button type="button" onclick="saveTournamentResult()" class="w-full py-4 bg-white text-zinc-950 font-extrabold rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-[0.985]">
+                                    <i class="fa-solid fa-save"></i>
+                                    <span id="tournament-save-label">Сохранить турнир</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="space-y-5">
+                            <div class="glass rounded-3xl p-5 border border-white/10">
+                                <div class="flex flex-wrap items-center justify-between gap-3">
+                                    <div>
+                                        <div class="font-extrabold text-xl">Список турниров</div>
+                                        <div id="tournament-counter" class="text-sm text-white/50 mt-1">0 турниров</div>
+                                    </div>
+                                    <button type="button" onclick="clearTournamentSearch()" class="px-4 py-2.5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-sm font-bold text-white/70 hover:text-white transition-all">
+                                        <i class="fa-solid fa-filter-circle-xmark mr-2"></i>Сбросить поиск
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div id="tournament-list" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                <!-- Tournament cards populated by JS -->
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -3398,7 +3534,7 @@
                 create_team: 'Создай команду', your_club: 'YOUR CLUB', active: 'ACTIVE', your_id: 'YOUR ID', your_team: 'YOUR TEAM',
                 main: 'MAIN', nav_add_title: 'Добавить игру', nav_add_sub: 'Новая серия', nav_history_title: 'История', nav_history_sub: 'Все матчи',
                 nav_board_title: 'Доска', nav_board_sub: 'Тактика команды', nav_support_title: 'Поддержка', nav_support_sub: 'Мои тикеты',
-                nav_vod_title: 'VOD Review', nav_vod_sub: 'Анализ видео', nav_admin_title: 'Админка', nav_admin_sub: 'Управление',
+                nav_vod_title: 'VOD Review', nav_vod_sub: 'Анализ видео', nav_tournaments_title: 'Турниры', nav_tournaments_sub: 'Результаты', nav_admin_title: 'Админка', nav_admin_sub: 'Управление',
                 account_settings: 'Настройки аккаунта', discord_updates: 'Discord обновления', app_info_title: 'Информация по приложению',
                 new_series_badge: 'NEW SERIES', add_game_title: 'Добавить игру', add_game_desc: 'Запиши результаты серии и сохрани в историю',
                 today: 'Сегодня', opponent_section: 'ПРОТИВНИК', my_team: 'МОЯ КОМАНДА', opponent: 'СОПЕРНИК', opponent_placeholder: 'Название команды',
@@ -3419,7 +3555,7 @@
                 create_team: 'Create a team', your_club: 'YOUR CLUB', active: 'ACTIVE', your_id: 'YOUR ID', your_team: 'YOUR TEAM',
                 main: 'MAIN', nav_add_title: 'Add game', nav_add_sub: 'New series', nav_history_title: 'History', nav_history_sub: 'All matches',
                 nav_board_title: 'Board', nav_board_sub: 'Team tactics', nav_support_title: 'Support', nav_support_sub: 'My tickets',
-                nav_vod_title: 'VOD Review', nav_vod_sub: 'Video analysis', nav_admin_title: 'Admin', nav_admin_sub: 'Management',
+                nav_vod_title: 'VOD Review', nav_vod_sub: 'Video analysis', nav_tournaments_title: 'Tournaments', nav_tournaments_sub: 'Results', nav_admin_title: 'Admin', nav_admin_sub: 'Management',
                 account_settings: 'Account settings', discord_updates: 'Discord updates', app_info_title: 'App information',
                 new_series_badge: 'NEW SERIES', add_game_title: 'Add game', add_game_desc: 'Record the series result and save it to history',
                 today: 'Today', opponent_section: 'OPPONENT', my_team: 'MY TEAM', opponent: 'OPPONENT', opponent_placeholder: 'Team name',
@@ -3440,7 +3576,7 @@
                 create_team: 'Створи команду', your_club: 'YOUR CLUB', active: 'ACTIVE', your_id: 'YOUR ID', your_team: 'YOUR TEAM',
                 main: 'MAIN', nav_add_title: 'Додати гру', nav_add_sub: 'Нова серія', nav_history_title: 'Історія', nav_history_sub: 'Усі матчі',
                 nav_board_title: 'Дошка', nav_board_sub: 'Тактика команди', nav_support_title: 'Підтримка', nav_support_sub: 'Мої тікети',
-                nav_vod_title: 'VOD Review', nav_vod_sub: 'Аналіз відео', nav_admin_title: 'Адмінка', nav_admin_sub: 'Керування',
+                nav_vod_title: 'VOD Review', nav_vod_sub: 'Аналіз відео', nav_tournaments_title: 'Турніри', nav_tournaments_sub: 'Результати', nav_admin_title: 'Адмінка', nav_admin_sub: 'Керування',
                 account_settings: 'Налаштування акаунта', discord_updates: 'Discord оновлення', app_info_title: 'Інформація про застосунок',
                 new_series_badge: 'NEW SERIES', add_game_title: 'Додати гру', add_game_desc: 'Запиши результат серії та збережи його в історію',
                 today: 'Сьогодні', opponent_section: 'СУПЕРНИК', my_team: 'МОЯ КОМАНДА', opponent: 'СУПЕРНИК', opponent_placeholder: 'Назва команди',
@@ -3461,7 +3597,7 @@
                 create_team: 'Crea un equipo', your_club: 'YOUR CLUB', active: 'ACTIVE', your_id: 'YOUR ID', your_team: 'YOUR TEAM',
                 main: 'MAIN', nav_add_title: 'Agregar juego', nav_add_sub: 'Nueva serie', nav_history_title: 'Historial', nav_history_sub: 'Todos los partidos',
                 nav_board_title: 'Pizarra', nav_board_sub: 'Táctica del equipo', nav_support_title: 'Soporte', nav_support_sub: 'Mis tickets',
-                nav_vod_title: 'VOD Review', nav_vod_sub: 'Análisis de video', nav_admin_title: 'Admin', nav_admin_sub: 'Gestión',
+                nav_vod_title: 'VOD Review', nav_vod_sub: 'Análisis de video', nav_tournaments_title: 'Torneos', nav_tournaments_sub: 'Resultados', nav_admin_title: 'Admin', nav_admin_sub: 'Gestión',
                 account_settings: 'Configuración de la cuenta', discord_updates: 'Actualizaciones de Discord', app_info_title: 'Información de la app',
                 new_series_badge: 'NEW SERIES', add_game_title: 'Agregar juego', add_game_desc: 'Guarda el resultado de la serie en el historial',
                 today: 'Hoy', opponent_section: 'RIVAL', my_team: 'MI EQUIPO', opponent: 'RIVAL', opponent_placeholder: 'Nombre del equipo',
@@ -3831,7 +3967,7 @@
             const navItems = document.querySelectorAll('.nav-item[data-tab]');
             const navMap = {
                 add: ['nav_add_title', 'nav_add_sub'], history: ['nav_history_title', 'nav_history_sub'], board: ['nav_board_title', 'nav_board_sub'],
-                support: ['nav_support_title', 'nav_support_sub'], vod: ['nav_vod_title', 'nav_vod_sub'], admin: ['nav_admin_title', 'nav_admin_sub']
+                support: ['nav_support_title', 'nav_support_sub'], vod: ['nav_vod_title', 'nav_vod_sub'], tournaments: ['nav_tournaments_title', 'nav_tournaments_sub'], admin: ['nav_admin_title', 'nav_admin_sub']
             };
             navItems.forEach(item => {
                 const tab = item.dataset.tab;
@@ -6638,6 +6774,233 @@ async function saveTacticalBoard(saveAsNew = false) {
         }
 
 
+        // Tournament results
+        const TOURNAMENT_STAGES = ['Group Stage', 'PlayOff', 'Final', 'GrandFinal'];
+        const TOURNAMENT_STORAGE_KEY = 'tripleSixTournamentResults';
+        const TOURNAMENT_COLOR_META = {
+            cyan: { label: 'Cyan', shell: 'border-cyan-300/25 bg-cyan-300/8', text: 'text-cyan-100', dot: 'bg-cyan-300', glow: 'shadow-cyan-950/20' },
+            purple: { label: 'Purple', shell: 'border-purple-300/25 bg-purple-300/8', text: 'text-purple-100', dot: 'bg-purple-300', glow: 'shadow-purple-950/20' },
+            gold: { label: 'Gold', shell: 'border-amber-300/30 bg-amber-300/10', text: 'text-amber-100', dot: 'bg-amber-300', glow: 'shadow-amber-950/20' },
+            red: { label: 'Red', shell: 'border-red-300/25 bg-red-300/8', text: 'text-red-100', dot: 'bg-red-300', glow: 'shadow-red-950/20' },
+            green: { label: 'Green', shell: 'border-emerald-300/25 bg-emerald-300/8', text: 'text-emerald-100', dot: 'bg-emerald-300', glow: 'shadow-emerald-950/20' },
+            white: { label: 'White', shell: 'border-white/25 bg-white/8', text: 'text-white', dot: 'bg-white', glow: 'shadow-white/5' }
+        };
+
+        function getTournamentResults() {
+            try {
+                const raw = localStorage.getItem(TOURNAMENT_STORAGE_KEY);
+                const parsed = raw ? JSON.parse(raw) : [];
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (_) {
+                return [];
+            }
+        }
+
+        function setTournamentResults(items) {
+            localStorage.setItem(TOURNAMENT_STORAGE_KEY, JSON.stringify(items));
+        }
+
+        function getSelectedTournamentStages() {
+            return Array.from(document.querySelectorAll('.tournament-stage-check:checked')).map(input => input.value);
+        }
+
+        function setSelectedTournamentStages(stages) {
+            const selected = new Set(Array.isArray(stages) ? stages : []);
+            document.querySelectorAll('.tournament-stage-check').forEach(input => {
+                input.checked = selected.has(input.value);
+            });
+            updateTournamentStagesLabel();
+        }
+
+        function updateTournamentStagesLabel() {
+            const label = document.getElementById('tournament-stages-trigger-text');
+            if (!label) return;
+            const stages = getSelectedTournamentStages();
+            label.textContent = stages.length ? stages.join(' • ') : 'Выберите стадии...';
+        }
+
+        function applyTournamentStageAutoFill() {
+            const currentStage = document.getElementById('tournament-stage')?.value || 'Group Stage';
+            const stageIndex = TOURNAMENT_STAGES.indexOf(currentStage);
+            const autoStages = stageIndex >= 0 ? TOURNAMENT_STAGES.slice(0, stageIndex + 1) : [];
+            setSelectedTournamentStages(autoStages);
+        }
+
+        function toggleTournamentStagesDropdown(event) {
+            event?.stopPropagation?.();
+            const menu = document.getElementById('tournament-stages-menu');
+            if (!menu) return;
+            menu.classList.toggle('hidden');
+        }
+
+        document.addEventListener('click', (event) => {
+            const menu = document.getElementById('tournament-stages-menu');
+            if (!menu || menu.classList.contains('hidden')) return;
+            const inside = event.target.closest('#tournament-stages-menu') || event.target.closest('[onclick*="toggleTournamentStagesDropdown"]');
+            if (!inside) menu.classList.add('hidden');
+        });
+
+        function saveTournamentResult() {
+            const nameEl = document.getElementById('tournament-name');
+            const placementEl = document.getElementById('tournament-placement');
+            const colorEl = document.getElementById('tournament-color');
+            const stageEl = document.getElementById('tournament-stage');
+            const editEl = document.getElementById('tournament-edit-id');
+            const name = (nameEl?.value || '').trim();
+            if (!name) {
+                showToast('Введите название турнира');
+                nameEl?.focus();
+                return;
+            }
+            const items = getTournamentResults();
+            const editId = editEl?.value || '';
+            const payload = {
+                id: editId || `TRN-${Date.now().toString(36).toUpperCase()}`,
+                name,
+                color: colorEl?.value || 'cyan',
+                placement: (placementEl?.value || '').trim(),
+                currentStage: stageEl?.value || 'Group Stage',
+                completedStages: getSelectedTournamentStages(),
+                updatedAt: new Date().toISOString()
+            };
+            if (!payload.placement) payload.placement = '—';
+            const index = items.findIndex(item => item.id === payload.id);
+            if (index >= 0) {
+                payload.createdAt = items[index].createdAt || payload.updatedAt;
+                items[index] = payload;
+            } else {
+                payload.createdAt = payload.updatedAt;
+                items.unshift(payload);
+            }
+            setTournamentResults(items);
+            resetTournamentForm();
+            renderTournaments();
+            showToast(index >= 0 ? 'Турнир обновлён' : 'Турнир сохранён');
+        }
+
+        function resetTournamentForm() {
+            const fields = ['tournament-name', 'tournament-placement', 'tournament-edit-id'];
+            fields.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            const color = document.getElementById('tournament-color');
+            const stage = document.getElementById('tournament-stage');
+            if (color) color.value = 'cyan';
+            if (stage) stage.value = 'Group Stage';
+            setSelectedTournamentStages(['Group Stage']);
+            const saveLabel = document.getElementById('tournament-save-label');
+            if (saveLabel) saveLabel.textContent = 'Сохранить турнир';
+        }
+
+        function editTournamentResult(id) {
+            const item = getTournamentResults().find(t => t.id === id);
+            if (!item) return;
+            document.getElementById('tournament-edit-id').value = item.id;
+            document.getElementById('tournament-name').value = item.name || '';
+            document.getElementById('tournament-color').value = item.color || 'cyan';
+            document.getElementById('tournament-placement').value = item.placement || '';
+            document.getElementById('tournament-stage').value = item.currentStage || 'Group Stage';
+            setSelectedTournamentStages(item.completedStages || []);
+            const saveLabel = document.getElementById('tournament-save-label');
+            if (saveLabel) saveLabel.textContent = 'Обновить турнир';
+            document.getElementById('tournament-name')?.focus();
+        }
+
+        function deleteTournamentResult(id) {
+            const items = getTournamentResults().filter(item => item.id !== id);
+            setTournamentResults(items);
+            renderTournaments();
+            resetTournamentForm();
+            showToast('Турнир удалён');
+        }
+
+        function clearTournamentSearch() {
+            const search = document.getElementById('tournament-search');
+            if (search) search.value = '';
+            renderTournaments();
+        }
+
+        function renderTournamentTimeline(item) {
+            const completed = new Set(item.completedStages || []);
+            return TOURNAMENT_STAGES.map((stage, index) => {
+                const done = completed.has(stage);
+                const isCurrent = item.currentStage === stage;
+                return `
+                    <div class="relative flex-1 min-w-[86px]">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-2xl ${done ? 'bg-white text-zinc-950' : 'bg-white/8 text-white/40'} border border-white/15 flex items-center justify-center text-xs font-extrabold">
+                                ${done ? '<i class="fa-solid fa-check"></i>' : index + 1}
+                            </div>
+                            <div class="min-w-0">
+                                <div class="text-[11px] font-extrabold ${done ? 'text-white' : 'text-white/40'} truncate">${escapeHTML(stage)}</div>
+                                ${isCurrent ? '<div class="text-[9px] text-cyan-100 font-bold">CURRENT</div>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderTournaments() {
+            const holder = document.getElementById('tournament-list');
+            if (!holder) return;
+            const query = (document.getElementById('tournament-search')?.value || '').trim().toLowerCase();
+            const all = getTournamentResults();
+            const items = all.filter(item => !query || String(item.name || '').toLowerCase().includes(query));
+            const counter = document.getElementById('tournament-counter');
+            if (counter) counter.textContent = `${items.length} из ${all.length} турниров`;
+            if (!items.length) {
+                holder.innerHTML = `
+                    <div class="lg:col-span-2 glass rounded-3xl p-12 text-center border border-white/10">
+                        <i class="fa-solid fa-trophy text-6xl text-white/15 mb-5"></i>
+                        <div class="text-2xl font-extrabold text-white/80">Турниров пока нет</div>
+                        <div class="text-white/45 mt-2">Создай первый турнир или измени поиск.</div>
+                    </div>
+                `;
+                return;
+            }
+            holder.innerHTML = items.map(item => {
+                const meta = TOURNAMENT_COLOR_META[item.color] || TOURNAMENT_COLOR_META.cyan;
+                return `
+                    <div class="glass frost rounded-3xl p-5 border ${meta.shell} shadow-xl ${meta.glow} overflow-hidden relative">
+                        <div class="absolute -right-8 -top-8 w-28 h-28 rounded-full ${meta.dot} opacity-10 blur-2xl pointer-events-none"></div>
+                        <div class="relative z-10">
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="min-w-0">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="w-3 h-3 rounded-full ${meta.dot} shadow-lg"></span>
+                                        <span class="text-[10px] font-extrabold tracking-widest ${meta.text}">${escapeHTML(meta.label)}</span>
+                                    </div>
+                                    <div class="font-display text-2xl font-extrabold text-white truncate">${escapeHTML(item.name)}</div>
+                                    <div class="mt-2 flex flex-wrap items-center gap-2">
+                                        <span class="px-3 py-1 rounded-full bg-white/10 border border-white/15 text-xs font-extrabold text-white">${escapeHTML(item.placement || '—')}</span>
+                                        <span class="px-3 py-1 rounded-full bg-black/20 border border-white/10 text-xs font-bold text-white/70">${escapeHTML(item.currentStage || 'Group Stage')}</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <button type="button" onclick="editTournamentResult('${escapeHTML(item.id)}')" class="w-10 h-10 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/65 hover:text-white transition-all" title="Редактировать">
+                                        <i class="fa-solid fa-pen text-sm"></i>
+                                    </button>
+                                    <button type="button" onclick="deleteTournamentResult('${escapeHTML(item.id)}')" class="w-10 h-10 rounded-2xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-300 transition-all" title="Удалить">
+                                        <i class="fa-solid fa-trash text-sm"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="mt-5 pt-4 border-t border-white/10">
+                                <div class="text-[10px] text-white/40 font-extrabold tracking-widest mb-3">ПРОЙДЕННЫЕ СТАДИИ</div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    ${renderTournamentTimeline(item)}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+
         // Tab switching
         function switchTab(tab) {
             if (tab === 'admin' && !isAdminUser()) {
@@ -6672,6 +7035,11 @@ async function saveTacticalBoard(saveAsNew = false) {
             
             if (tab === 'vod') {
                 populateVODSelect();
+            }
+
+            if (tab === 'tournaments') {
+                renderTournaments();
+                updateTournamentStagesLabel();
             }
 
             if (tab === 'board') {
