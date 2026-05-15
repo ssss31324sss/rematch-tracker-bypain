@@ -9381,15 +9381,25 @@ async function saveTacticalBoard(saveAsNew = false) {
             }
 
             function setupSeriesListener() {
-                if (unsubscribeSeries) unsubscribeSeries();
-                
-                // Query without orderBy to avoid composite index requirement
-                // Sort in JavaScript instead
-                let q = db.collection('shared-series');
-                
-                if (currentTeamId) {
-                    q = q.where('teamId', '==', currentTeamId);
+                if (unsubscribeSeries) {
+                    unsubscribeSeries();
+                    unsubscribeSeries = null;
                 }
+
+                // Security rules expect every shared-series read to be scoped by teamId.
+                // Do not subscribe to the entire collection while the team is still loading
+                // or when the user has no team: that causes permission-denied noise and
+                // makes the app feel broken on startup.
+                if (!currentTeamId) {
+                    localStorage.setItem('series', '[]');
+                    renderHistory?.();
+                    populateVODSelect?.();
+                    return;
+                }
+
+                // Query without orderBy to avoid composite index requirement.
+                // Sort in JavaScript instead.
+                const q = db.collection('shared-series').where('teamId', '==', currentTeamId);
                 
                 unsubscribeSeries = q.onSnapshot(
                     (snapshot) => {
@@ -9430,7 +9440,6 @@ async function saveTacticalBoard(saveAsNew = false) {
             updateMaps();
             initDifficultyStars();
             switchTab('add');
-            showToast('Синхронизация с командой включена!');
             
             // Show TS-ID in sidebar
             if (userTSID) {
@@ -9474,12 +9483,15 @@ async function saveTacticalBoard(saveAsNew = false) {
                 }
             }
             
-            // NOW set up the listener with the correct teamId
+            // NOW set up listeners only after the user's teamId is known.
+            // Starting a shared-series listener before this point creates an unfiltered
+            // collection read and is rejected by Firestore rules.
             setupSeriesListener();
             
             // Set up real-time listener for team changes
             if (currentTeamId) {
                 setupTeamListener();
+                showToast('Синхронизация с командой включена!');
             }
             
             // Show Admin tab only for the owner (TS-3MQHR1TAU); hide it for everyone else immediately.
@@ -9517,8 +9529,14 @@ async function saveTacticalBoard(saveAsNew = false) {
                     const userDoc = await db.collection('users').doc(currentUser.uid).get();
                     if (userDoc.exists && userDoc.data().teamId) {
                         currentTeamId = userDoc.data().teamId;
+                        const teamDoc = await db.collection('teams').doc(currentTeamId).get();
+                        if (teamDoc.exists) {
+                            currentTeam = { id: currentTeamId, ...teamDoc.data() };
+                        }
                     }
-                } catch (e) {}
+                } catch (e) {
+                    console.warn('[SAVE] Failed to restore team from user profile:', e);
+                }
                 
                 if (!currentTeamId) {
                     alert('Сначала создай или присоединись к команде');
@@ -9622,6 +9640,17 @@ async function saveTacticalBoard(saveAsNew = false) {
                 id += chars.charAt(Math.floor(Math.random() * chars.length));
             }
             return id;
+        }
+
+        function normalizeTeamIdInput(rawValue) {
+            let value = String(rawValue || '').trim().toUpperCase();
+
+            // Support full invite links and pasted query strings like ?team=TEAM-ABC123.
+            const linkMatch = value.match(/[?&]TEAM=(TEAM-[A-Z0-9]{6})\b/);
+            if (linkMatch) return linkMatch[1];
+
+            const looseMatch = value.match(/TEAM-[A-Z0-9]{6}\b/);
+            return looseMatch ? looseMatch[0] : null;
         }
 
         async function createTeamFromSelection() {
@@ -10093,7 +10122,7 @@ async function saveTacticalBoard(saveAsNew = false) {
             console.log('[TEAM] joinTeam called, currentUser:', !!currentUser, 'userTSID:', userTSID);
             
             // Custom modal for team code input
-            const teamId = await showTeamCodeModal();
+            const teamId = normalizeTeamIdInput(await showTeamCodeModal());
             if (!teamId) return;
 
             try {
@@ -10738,31 +10767,24 @@ async function saveTacticalBoard(saveAsNew = false) {
                 };
                 
                 confirmBtn.onclick = () => {
-                    let value = input.value.trim();
-                    
-                    // Support full invite links
-                    if (value.includes('team=')) {
-                        const match = value.match(/team=(TEAM-[A-Z0-9]+)/);
-                        if (match) value = match[1];
-                    }
-                    
+                    const teamId = normalizeTeamIdInput(input.value);
                     cleanup();
-                    if (value && value.startsWith('TEAM-')) {
-                        resolve(value);
+                    if (teamId) {
+                        resolve(teamId);
                     } else {
-                        alert('Неверный формат кода (должен начинаться с TEAM-)');
+                        alert('Неверный формат кода (пример: TEAM-ABC123)');
                         resolve(null);
                     }
                 };
                 
                 input.onkeydown = (e) => {
                     if (e.key === 'Enter') {
-                        const value = input.value.trim();
+                        const teamId = normalizeTeamIdInput(input.value);
                         cleanup();
-                        if (value && value.startsWith('TEAM-')) {
-                            resolve(value);
+                        if (teamId) {
+                            resolve(teamId);
                         } else {
-                            alert('Неверный формат кода');
+                            alert('Неверный формат кода (пример: TEAM-ABC123)');
                             resolve(null);
                         }
                     }
